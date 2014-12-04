@@ -39,7 +39,7 @@ void setup()
   textAlign(CENTER, CENTER);
   
   cTable = new ColourTable();
-  cTable.addDiscreteColourRule(2,color(50, 55, 100));
+  cTable.addDiscreteColourRule(2,color(50, 100, 100));
   cTable.addDiscreteColourRule(3,color(255, 204, 0));
   cTable.addDiscreteColourRule(4,color(65));
   cTable.addDiscreteColourRule(5,color(0, 204, 0));
@@ -124,7 +124,7 @@ void setup()
   
   // Scaling
   barChart.setMinValue(0);
-  barChart.setMaxValue(1000000);
+  barChart.setMaxValue(1150000);
    
   // Axis appearance
   //textFont(createFont("Serif",1),1);
