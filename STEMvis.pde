@@ -1,17 +1,22 @@
 import controlP5.*;
 import org.gicentre.utils.stat.*;
+import org.gicentre.utils.*;
+import org.gicentre.utils.gui.Tooltip;
 import de.bezier.data.*;
  
+MyOwnClass moc;
 BarChart barChart;
 XlsReader reader;
+Tooltip dod;
+PVector lastClick;
+PFont myFont;
+PVector curr;
 int[] stemGroups;
 float[] genEnrollment;
 String[] groupLabels;
 int[] yearIndexes;
 ControlP5 cp5;
 int sliderValue = 0;
-//int sliderTicks1 = 100;
-//int sliderTicks2 = 30;
 Slider sli;
 int myColor = color(0,0,0);
  
@@ -19,6 +24,21 @@ int myColor = color(0,0,0);
 void setup()
 {
   size(800,600);
+  
+  // Uncomment the following two lines to see the available fonts 
+  //String[] fontList = PFont.list();
+  //println(fontList);
+  myFont = createFont("Georgia", 12);
+  textFont(myFont);
+  textAlign(CENTER, CENTER);
+  
+  moc = new MyOwnClass(this);
+  
+  lastClick = new PVector(0.0f, 0.0f);
+  
+  dod = new Tooltip((PApplet)this, myFont, 20.0f, width/6);
+  dod.setText("Test");
+  dod.setIsActive(false);
   
   cp5 = new ControlP5(this);
   cp5.addSlider("sliderValue")
@@ -84,7 +104,8 @@ void setup()
   barChart.setMaxValue(1000000);
    
   // Axis appearance
-  textFont(createFont("Serif",1),1);
+  //textFont(createFont("Serif",1),1);
+  textFont(myFont);
    // SIZE NOT CHANGING
   
   barChart.showValueAxis(true);
@@ -103,19 +124,45 @@ void draw()
   updateGenEnrollment();
   
   barChart.draw(75,50,width-50,height-75);
-  //background(sliderTicks1);
-
-  //fill(sliderValue);
-  //rect(0,0,width,100);
+  dod.draw(lastClick.x, lastClick.y);
  
   // Draw a title over the top of the chart.
   fill(125);
   textSize(20);
-  text("General Enrollment of Racial Groups in 2002", 70,30);
+  //text("General Enrollment of Racial Groups in 2002", 70,30);
+  text("General Enrollment of Racial Groups in " + sliderValue, 70,30);
+}
+
+void mousePressed(){
+  lastClick.x = mouseX;
+  lastClick.y = mouseY;
+  curr = barChart.getScreenToData(lastClick);
+  if(curr!=null) updateDOD(curr);
+  //println(barChart.getScreenToData(new PVector(mouseX, mouseY)));
+  if(dod.isActive()){dod.setIsActive(false);}
+  else if(curr!=null) dod.setIsActive(true);
+}
+
+void updateDOD(PVector vec){
+  int i = (int)vec.x;
+  String str;
+  str = String.format("%s\n" + "%d", groupLabels[i], (int)genEnrollment[i]);
+  //dod.setText(groupLabels[i]+ "\n" + genEnrollment[i]);
+  dod.setText(str);
 }
 
 void updateGenEnrollment(){
   for(int i=0; i<genEnrollment.length; i++){
     genEnrollment[i] = reader.getFloat(stemGroups[i+2]+1, yearIndexes[sliderValue-2002]);
+  }
+}
+
+class MyOwnClass
+{
+  PApplet sketchRef;
+
+  MyOwnClass(PApplet pa)
+  {
+    sketchRef = pa;
   }
 }
