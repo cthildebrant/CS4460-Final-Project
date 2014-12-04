@@ -3,6 +3,7 @@ import org.gicentre.utils.stat.*;
 import org.gicentre.utils.*;
 import org.gicentre.utils.gui.Tooltip;
 import de.bezier.data.*;
+import org.gicentre.utils.colour.ColourTable;
  
 MyOwnClass moc;
 BarChart barChart;
@@ -12,6 +13,7 @@ PVector lastClick;
 PFont myFont;
 PVector curr;
 int[] stemGroups;
+float[] groups;
 float[] genEnrollment;
 String[] groupLabels;
 int[] yearIndexes;
@@ -19,12 +21,16 @@ ControlP5 cp5;
 int sliderValue = 0;
 Slider sli;
 int myColor = color(0,0,0);
+float dimensionScale;
+float initDim;
+ColourTable cTable;
  
 // Initialises the sketch and loads data into the chart.
 void setup()
 {
   size(800,600);
-  
+  dimensionScale = 0.80f;
+  initDim = (1.0f-dimensionScale)/2.0f;
   // Uncomment the following two lines to see the available fonts 
   //String[] fontList = PFont.list();
   //println(fontList);
@@ -32,11 +38,19 @@ void setup()
   textFont(myFont);
   textAlign(CENTER, CENTER);
   
+  cTable = new ColourTable();
+  cTable.addDiscreteColourRule(2,color(50, 55, 100));
+  cTable.addDiscreteColourRule(3,color(255, 204, 0));
+  cTable.addDiscreteColourRule(4,color(65));
+  cTable.addDiscreteColourRule(5,color(0, 204, 0));
+  cTable.addDiscreteColourRule(6,color(204, 0, 0));
+  cTable.addDiscreteColourRule(7,color(0, 0, 204));
+  
   moc = new MyOwnClass(this);
   
   lastClick = new PVector(0.0f, 0.0f);
   
-  dod = new Tooltip((PApplet)this, myFont, 20.0f, width/6);
+  dod = new Tooltip((PApplet)this, myFont, 20.0f, (width*dimensionScale)/6);
   dod.setText("Test");
   dod.setIsActive(false);
   
@@ -74,6 +88,14 @@ void setup()
   stemGroups[7] = 329; // Other
   stemGroups[8] = 376; // Temporary resident
   
+  groups = new float[6];
+  groups[0] = 2.0f;
+  groups[1] = 3.0f;
+  groups[2] = 4.0f;
+  groups[3] = 5.0f;
+  groups[4] = 6.0f;
+  groups[5] = 7.0f;
+  
   
   reader = new XlsReader( this, "table3.xls");
 
@@ -98,6 +120,7 @@ void setup()
   
   barChart = new BarChart(this);
   barChart.setData(genEnrollment);
+  barChart.setBarColour(groups, cTable);
   
   // Scaling
   barChart.setMinValue(0);
@@ -123,14 +146,14 @@ void draw()
   
   updateGenEnrollment();
   
-  barChart.draw(75,50,width-50,height-75);
+  barChart.draw(width*initDim,height*initDim,width*dimensionScale,height*dimensionScale);
   dod.draw(lastClick.x, lastClick.y);
  
   // Draw a title over the top of the chart.
   fill(125);
   textSize(20);
   //text("General Enrollment of Racial Groups in 2002", 70,30);
-  text("General Enrollment of Racial Groups in " + sliderValue, 70,30);
+  text("General Enrollment of Racial Groups in " + sliderValue, 300, 25);
 }
 
 void mousePressed(){
@@ -146,7 +169,7 @@ void mousePressed(){
 void updateDOD(PVector vec){
   int i = (int)vec.x;
   String str;
-  str = String.format("%s\n" + "%d", groupLabels[i], (int)genEnrollment[i]);
+  str = String.format("Group: %s\n" + "Students enrolled: %d\n" + "Year: %d\n", groupLabels[i], (int)genEnrollment[i], sliderValue);
   //dod.setText(groupLabels[i]+ "\n" + genEnrollment[i]);
   dod.setText(str);
 }
